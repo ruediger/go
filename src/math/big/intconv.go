@@ -22,6 +22,22 @@ func (x *Int) String() string {
 	return x.abs.decimalString()
 }
 
+// StringBase returns x as a string in the given base.
+// The base argument must be a value from 2 through MaxBase.
+func (x *Int) StringBase(base int) string {
+	if base < 2 || base > MaxBase {
+		panic(fmt.Sprintf("illegal number base %d", base))
+	}
+	charset := lowercaseDigits[0:base]
+	switch {
+	case x == nil:
+		return "<nil>"
+	case x.neg:
+		return "-" + x.abs.string(charset)
+	}
+	return x.abs.string(charset)
+}
+
 func charset(ch rune) string {
 	switch ch {
 	case 'b':

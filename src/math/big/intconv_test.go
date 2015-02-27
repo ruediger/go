@@ -134,6 +134,88 @@ func TestSetString(t *testing.T) {
 	}
 }
 
+var stringBaseTests = []struct {
+	val  int64
+	base int
+	out  string
+}{
+	{0, 2, "0"},
+	{0, 8, "0"},
+	{0, 10, "0"},
+	{0, 16, "0"},
+	{0, 32, "0"},
+	{0, 36, "0"},
+
+	{2, 2, "10"},
+	{2, 7, "2"},
+	{2, 36, "2"},
+
+	{7, 2, "111"},
+	{7, 7, "10"},
+	{7, 8, "7"},
+
+	{8, 8, "10"},
+
+	{10, 2, "1010"},
+	{10, 7, "13"},
+	{10, 8, "12"},
+	{10, 10, "10"},
+	{10, 16, "a"},
+	{10, 32, "a"},
+	{10, 36, "a"},
+
+	{15, 16, "f"},
+	{15, 15, "10"},
+	{16, 16, "10"},
+	{16, 32, "g"},
+	{32, 32, "10"},
+	{32, 36, "w"},
+	{35, 36, "z"},
+	{36, 36, "10"},
+
+	{-1, 2, "-1"},
+	{-10, 2, "-1010"},
+	{-10, 32, "-a"},
+	{-36, 36, "-10"},
+	{-8, 7, "-11"},
+}
+
+func TestStringBase(t *testing.T) {
+	z := new(Int)
+
+	for i, test := range stringTests {
+		if !test.ok {
+			continue
+		}
+		z.SetInt64(test.val)
+
+		base := test.base
+		if base == 0 {
+			base = 10
+		}
+		s := z.StringBase(base)
+		if s != test.out {
+			t.Errorf("#%da got %s; want %s", i, s, test.out)
+		}
+	}
+
+	for i, test := range stringBaseTests {
+		z.SetInt64(test.val)
+		s := z.StringBase(test.base)
+		if s != test.out {
+			t.Errorf("#%db got %s; want %s", i, s, test.out)
+		}
+	}
+
+	var znil *Int
+	for i := 2; i <= MaxBase; i++ {
+		s := znil.StringBase(i)
+		if s != "<nil>" {
+			t.Errorf("nil, base %d: got %s; want <nil>", i, s)
+		}
+	}
+}
+
 var formatTests = []struct {
 	input  string
 	format string
